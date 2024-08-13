@@ -1,20 +1,7 @@
 import { vitePlugin as remix } from "@remix-run/dev";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
-import {
-  RemixSitemapPlugin,
-  ChangeFreq,
-  PriorityFormat,
-} from "remix-sitemap-plus";
-
-const sitemapEntries = [
-  {
-    url: "http://localhost:3000/",
-    changeFreq: ChangeFreq.DAILY,
-    priority: "1.0" as PriorityFormat,
-  },
-  { url: "http://localhost:3000/about", changeFreq: ChangeFreq.MONTHLY },
-];
+import { RemixSitemapPlusPlugin } from "../src/index";
 
 const outputPath = "./public/sitemap.xml";
 
@@ -28,6 +15,6 @@ export default defineConfig({
       },
     }),
     tsconfigPaths(),
-    RemixSitemapPlugin({ entries: sitemapEntries, outputPath }),
+    RemixSitemapPlusPlugin({ outputPath }),
   ],
 });

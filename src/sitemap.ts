@@ -16,11 +16,17 @@ export type DateFormat =
 // TODO: Priority Format - a number between 0.0 and 1.0, but could also be a single number
 export type PriorityFormat = `${number}.${number}` | `${number}`;
 
+export interface AlternateRef {
+  href: string;
+  hreflang?: string;
+}
 export interface SitemapEntry {
-  url: string; // URL of the page
+  url: string;
   lastModified?: DateFormat;
-  changeFreq?: ChangeFreq; // Change frequency
+  changeFreq?: ChangeFreq;
   priority?: PriorityFormat;
+  exclude?: boolean;
+  alternateRefs?: AlternateRef[];
 }
 
 export interface Sitemap {
@@ -31,6 +37,7 @@ export async function generateSitemap(
   entries: SitemapEntry[]
 ): Promise<string> {
   const urls = entries
+    .filter((entry) => !entry.exclude)
     .map(
       (entry) => `
       <url>
@@ -40,14 +47,24 @@ export async function generateSitemap(
           entry.changeFreq ? `<changefreq>${entry.changeFreq}</changefreq>` : ""
         }
         ${entry.priority ? `<priority>${entry.priority}</priority>` : ""}
+        ${entry.alternateRefs
+          ?.map(
+            (ref) => `
+          <xhtml:link 
+            rel="alternate" 
+            hreflang="${ref.hreflang}" 
+            href="${ref.href}" 
+          />`
+          )
+          .join("")}
       </url>
     `
     )
     .join("");
 
   return `
-      <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
         ${urls}
-      </urlset>
-    `;
+    </urlset>
+  `;
 }
